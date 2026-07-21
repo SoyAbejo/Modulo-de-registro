@@ -1,9 +1,34 @@
-# 🐾 PetServices — GA7-220501096-AA2-EV02
+# 🐾 PetServices (PetConnect) — SENA GA7-220501096
 
-## Módulo implementado: Gestión de Clientes (CRUD)
+Proyecto web Java con **Servlets + JSP** para las evidencias de competencia del SENA
+(ficha 3186628). Implementa la gestión de clientes (interfaz web) y, a partir de la
+evidencia AA5-EV03, una **API REST en JSON** que expone las operaciones sobre todas
+las entidades del modelo físico `petconnect_completo.sql`.
 
-Proyecto web Java con **Servlets + JSP** para la evidencia de competencia del SENA.
-Implementa registro, inicio de sesión y gestión completa (CRUD) de clientes del sistema PetServices.
+| Evidencia | Contenido |
+|---|---|
+| **AA2-EV02** | Módulo web (Servlets + JSP): registro, login y CRUD de clientes |
+| **AA5-EV03** | Diseño y codificación de los **servicios web (API REST)** del proyecto — ver [`DOCUMENTACION_API.md`](./DOCUMENTACION_API.md) |
+
+---
+
+## 🌐 API REST (AA5-EV03)
+
+8 servicios REST en JSON bajo `/api`, uno por entidad del modelo físico, más el login por API:
+
+| Recurso | Ruta base | Servlet |
+|---|---|---|
+| Autenticación | `/api/auth/login` | `AuthApiServlet` |
+| Clientes | `/api/clientes` | `ClienteApiServlet` |
+| Mascotas | `/api/mascotas` | `MascotaApiServlet` |
+| Establecimientos | `/api/establecimientos` | `EstablecimientoApiServlet` |
+| Servicios | `/api/servicios` | `ServicioApiServlet` |
+| Citas | `/api/citas` | `CitaApiServlet` |
+| Productos | `/api/productos` | `ProductoApiServlet` |
+| Pedidos | `/api/pedidos` | `PedidoApiServlet` |
+
+Documentación completa de cada endpoint (métodos, cuerpos de petición, códigos de
+estado y ejemplos con cURL) en **[`DOCUMENTACION_API.md`](./DOCUMENTACION_API.md)**.
 
 ---
 
@@ -18,15 +43,37 @@ petservices/                              ← Raíz del proyecto Maven
     └── main/
         │
         ├── java/com/petservices/         ← Código fuente Java
-        │   ├── modelo/
-        │   │   └── Cliente.java          ← Clase de entidad (JavaBean)
-        │   ├── dao/
-        │   │   └── ClienteDAO.java       ← Capa de acceso a datos (simulada en RAM)
-        │   └── servlet/
-        │       ├── RegistroServlet.java  ← Controlador: /registro
-        │       ├── LoginServlet.java     ← Controlador: /login
-        │       ├── ClienteServlet.java   ← Controlador: /clientes (CRUD)
-        │       └── LogoutServlet.java    ← Controlador: /logout
+        │   ├── modelo/                   ← Entidades JavaBean del modelo físico
+        │   │   ├── Cliente.java
+        │   │   ├── Mascota.java
+        │   │   ├── Establecimiento.java
+        │   │   ├── Servicio.java
+        │   │   ├── Cita.java
+        │   │   ├── Producto.java
+        │   │   └── Pedido.java
+        │   ├── dao/                      ← Acceso a datos (simulado en RAM, 1 DAO por entidad)
+        │   │   ├── ClienteDAO.java
+        │   │   ├── MascotaDAO.java
+        │   │   ├── EstablecimientoDAO.java
+        │   │   ├── ServicioDAO.java
+        │   │   ├── CitaDAO.java
+        │   │   ├── ProductoDAO.java
+        │   │   └── PedidoDAO.java
+        │   ├── servlet/                  ← Controladores web (JSP), evidencia AA2-EV02
+        │   │   ├── RegistroServlet.java  ← Controlador: /registro
+        │   │   ├── LoginServlet.java     ← Controlador: /login
+        │   │   ├── ClienteServlet.java   ← Controlador: /clientes (CRUD)
+        │   │   └── LogoutServlet.java    ← Controlador: /logout
+        │   └── api/                      ← Servicios REST JSON, evidencia AA5-EV03
+        │       ├── util/ApiUtil.java     ← JSON, lectura de body, extracción de id
+        │       ├── AuthApiServlet.java       → /api/auth/login
+        │       ├── ClienteApiServlet.java    → /api/clientes
+        │       ├── MascotaApiServlet.java    → /api/mascotas
+        │       ├── EstablecimientoApiServlet.java → /api/establecimientos
+        │       ├── ServicioApiServlet.java   → /api/servicios
+        │       ├── CitaApiServlet.java       → /api/citas
+        │       ├── ProductoApiServlet.java   → /api/productos
+        │       └── PedidoApiServlet.java     → /api/pedidos
         │
         └── webapp/                       ← Recursos web (WEB-INF, JSPs, CSS)
             ├── index.jsp                 ← Redirección automática
@@ -100,12 +147,29 @@ clientes.jsp
 
 ## 📋 Métodos HTTP implementados
 
+### Módulo web (JSP) — AA2-EV02
+
 | Servlet           | doGet                              | doPost                         |
 |-------------------|------------------------------------|-------------------------------|
 | RegistroServlet   | Cargar formulario vacío            | Procesar y guardar nuevo cliente |
 | LoginServlet      | Cargar formulario de login         | Validar credenciales, crear sesión |
 | ClienteServlet    | Listar, cargar edición, eliminar   | Crear cliente, actualizar cliente |
 | LogoutServlet     | Invalidar sesión, redirigir        | —                              |
+
+### API REST (JSON) — AA5-EV03
+
+| Servlet | doGet | doPost | doPut | doDelete |
+|---|---|---|---|---|
+| AuthApiServlet | — | Validar login | — | — |
+| ClienteApiServlet | Listar / por id | Crear | Actualizar | Eliminar |
+| MascotaApiServlet | Listar / por id / por cliente | Crear | Actualizar | Eliminar |
+| EstablecimientoApiServlet | Listar / por id | Crear | Actualizar | Eliminar |
+| ServicioApiServlet | Listar / por id | Crear | Actualizar | Eliminar |
+| CitaApiServlet | Listar / por id / por estado | Crear (agendar) | Actualizar (fecha/hora/estado) | Cancelar |
+| ProductoApiServlet | Listar / por id / stock bajo | Crear | Actualizar | Eliminar |
+| PedidoApiServlet | Listar / por id | Crear | Actualizar | Eliminar |
+
+Detalle de rutas, cuerpos JSON y códigos de estado en [`DOCUMENTACION_API.md`](./DOCUMENTACION_API.md).
 
 ---
 
@@ -114,91 +178,59 @@ clientes.jsp
 - **Java 11** — Lógica de negocio y Servlets
 - **javax.servlet 4.0** — API de Servlets
 - **JSP 2.3** — Vistas dinámicas (scriptlets, expresiones)
+- **Gson 2.10.1** — Serialización/deserialización JSON de los servicios REST (AA5-EV03)
 - **Apache Tomcat 9.x** — Servidor de aplicaciones
 - **Maven** — Gestión de dependencias
-- **Simulación DAO en RAM** — Sin necesidad de BD para la demo
+- **Simulación DAO en RAM** — Sin necesidad de BD para la demo (estructurada para migrar a JDBC)
 
 ---
 
 ## 💾 Comandos Git esenciales
 
+Este proyecto ya tiene repositorio Git inicializado desde la evidencia AA2-EV02
+(remoto: `https://github.com/SoyAbejo/Modulo-de-registro.git`). Para la evidencia
+AA5-EV03 solo se agregan los nuevos archivos y se sube un nuevo commit:
+
 ```bash
-# 1. Inicializar repositorio en la carpeta del proyecto
 cd petservices
-git init
 
-# 2. Configurar tu identidad (solo la primera vez)
-git config user.name  "Tu Nombre"
-git config user.email "tucorreo@gmail.com"
+# 1. Ver los archivos nuevos/modificados
+git status
 
-# 3. Crear archivo .gitignore para excluir archivos innecesarios
-echo "target/
-*.class
-*.war
-.classpath
-.project
-.settings/
-.idea/
-*.iml" > .gitignore
-
-# 4. Agregar todos los archivos al área de staging
+# 2. Agregar todo lo nuevo (modelos, DAOs, servicios REST, documentación)
 git add .
 
-# 5. Primer commit — Módulo base
-git commit -m "feat: módulo Gestión de Clientes - GA7-220501096-AA2-EV02
+# 3. Commit de la evidencia AA5-EV03
+git commit -m "feat: servicios web REST del proyecto - GA7-220501096-AA5-EV03
 
-- Modelo Cliente (JavaBean)
-- ClienteDAO con simulación en memoria (CRUD)
-- RegistroServlet: doGet + doPost para registro
-- LoginServlet: doGet + doPost con sesión HTTP
-- ClienteServlet: CRUD completo (doGet/doPost)
-- LogoutServlet: invalidación de sesión
-- Vistas JSP: registro.jsp, login.jsp, clientes.jsp
-- Elementos JSP: scriptlets, expresiones, atributos de sesión"
+- 8 servicios REST en JSON bajo /api (Cliente, Mascota, Establecimiento,
+  Servicio, Cita, Producto, Pedido, Auth)
+- Modelos JavaBean y DAO en memoria para cada entidad del modelo físico
+- ApiUtil: utilidades comunes de JSON, lectura de body y extracción de id
+- Gson agregado como dependencia Maven para (de)serialización JSON
+- DOCUMENTACION_API.md: documentación completa de cada endpoint"
 
-# 6. Crear repositorio en GitHub (hazlo desde github.com primero)
-#    Luego enlazar el remoto:
-git remote add origin https://github.com/TU_USUARIO/petservices-aa2-ev02.git
-
-# 7. Subir a GitHub
-git branch -M main
-git push -u origin main
+# 4. Subir el commit al repositorio remoto
+git push origin main
 
 # ── Commits futuros (buenas prácticas) ──
 # git add .
-# git commit -m "fix: corrección de validación en formulario de registro"
+# git commit -m "fix: validación de estado en CitaApiServlet"
 # git push
 ```
 
 ---
 
-## 📦 Formato de entrega SENA
+## 📦 Formato de entrega SENA — AA5-EV03
 
-Para generar la carpeta comprimida con el nombre correcto:
+Estructura interna del ZIP entregado (nombre: `NOMBRE_APELLIDO_AA5_EV03.zip`):
 
 ```
-# Estructura interna del ZIP:
-APELLIDONOMBRE_AA2_EV02/
-├── petservices/          ← Código fuente completo del proyecto
-├── capturas/             ← Screenshots del módulo funcionando en Tomcat
-│   ├── 01_login.png
-│   ├── 02_registro.png
-│   ├── 03_lista_clientes.png
-│   ├── 04_editar_cliente.png
-│   └── 05_eliminar_cliente.png
-└── README.md             ← Este archivo
+ALEJANDRO_PUERTO_AA5_EV03/
+├── petservices/                  ← Proyecto completo (código fuente + API REST)
+├── DOCUMENTACION_API.md          ← Documentación de cada servicio
+└── enlace_repositorio.txt        ← URL del repositorio Git
 ```
-
-```bash
-# Comando para crear el ZIP con el nombre correcto (ajusta APELLIDONOMBRE):
-# Ejemplo: PUERTOMEJIA_AA2_EV02.zip
-
-cd ..
-zip -r APELLIDONOMBRE_AA2_EV02.zip APELLIDONOMBRE_AA2_EV02/
-```
-
-> 💡 **Recuerda:** El nombre va en MAYÚSCULAS, primero el APELLIDO luego el NOMBRE, sin espacios ni tildes.
-> Ejemplo: `PUERTOSALEJANDRO_AA2_EV02.zip`
 
 ---
 
@@ -206,5 +238,6 @@ zip -r APELLIDONOMBRE_AA2_EV02.zip APELLIDONOMBRE_AA2_EV02/
 
 - **Sistema:** PetServices / PetConnect
 - **Ficha SENA:** 3186628
-- **Evidencia:** GA7-220501096-AA2-EV02
+- **Evidencias:** GA7-220501096-AA2-EV02 (módulo web) y GA7-220501096-AA5-EV03 (servicios web / API REST)
 - **Competencia:** Módulos de software codificados y probados
+- **Repositorio:** https://github.com/SoyAbejo/Modulo-de-registro

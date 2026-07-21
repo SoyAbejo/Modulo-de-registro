@@ -63,6 +63,13 @@
           </dependency>
         -->
 
+        <!-- ── Gson: serialización/deserialización JSON para los servicios REST (AA5-EV03) ── -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
+        </dependency>
+
     </dependencies>
 
     <build>
