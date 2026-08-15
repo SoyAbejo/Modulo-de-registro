@@ -4,6 +4,7 @@ import com.petservices.modelo.Mascota;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -15,14 +16,18 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class MascotaDAO {
 
-    private static final List<Mascota> baseDatos  = new ArrayList<>();
+    private static final List<Mascota> baseDatos  = new CopyOnWriteArrayList<>();
     private static final AtomicInteger contadorId = new AtomicInteger(1);
 
     static {
-        baseDatos.add(new Mascota(contadorId.getAndIncrement(), "Labrador", "Max", 1, null));
-        baseDatos.add(new Mascota(contadorId.getAndIncrement(), "Siamés", "Luna", 2, null));
-        baseDatos.add(new Mascota(contadorId.getAndIncrement(), "Golden Retriever", "Rocky", 1, null));
-        baseDatos.add(new Mascota(contadorId.getAndIncrement(), "Pastor Alemán", "Thor", 3, null));
+        baseDatos.add(new Mascota(contadorId.getAndIncrement(), "Labrador", "Max",
+                "Perro", 3, 1, "Alejandro Puerto"));
+        baseDatos.add(new Mascota(contadorId.getAndIncrement(), "Siamés", "Luna",
+                "Gato", 2, 2, "Daniel Mejia"));
+        baseDatos.add(new Mascota(contadorId.getAndIncrement(), "Golden Retriever", "Rocky",
+                "Perro", 5, 1, "Alejandro Puerto"));
+        baseDatos.add(new Mascota(contadorId.getAndIncrement(), "Pastor Alemán", "Thor",
+                "Perro", 4, 3, "David Yaya"));
     }
 
     public boolean insertar(Mascota m) {

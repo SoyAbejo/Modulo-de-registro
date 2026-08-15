@@ -43,8 +43,14 @@ public class MascotaApiServlet extends HttpServlet {
         }
         String idClienteParam = request.getParameter("idCliente");
         if (idClienteParam != null) {
-            List<Mascota> lista = mascotaDAO.buscarPorCliente(Integer.parseInt(idClienteParam));
-            enviarJson(response, HttpServletResponse.SC_OK, lista);
+            try {
+                int idClienteVal = Integer.parseInt(idClienteParam);
+                List<Mascota> lista = mascotaDAO.buscarPorCliente(idClienteVal);
+                enviarJson(response, HttpServletResponse.SC_OK, lista);
+            } catch (NumberFormatException e) {
+                enviarError(response, HttpServletResponse.SC_BAD_REQUEST, "El parámetro 'idCliente' debe ser un número entero");
+                return;
+            }
         } else {
             enviarJson(response, HttpServletResponse.SC_OK, mascotaDAO.listarTodos());
         }
@@ -53,7 +59,7 @@ public class MascotaApiServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
-        Mascota nueva = GSON.fromJson(leerBody(request), Mascota.class);
+        Mascota nueva = parsearJson(request, Mascota.class);
         if (nueva == null || nueva.getNombre() == null || nueva.getRaza() == null) {
             enviarError(response, HttpServletResponse.SC_BAD_REQUEST, "Los campos 'nombre' y 'raza' son obligatorios");
             return;
@@ -75,7 +81,11 @@ public class MascotaApiServlet extends HttpServlet {
             return;
         }
         request.setCharacterEncoding("UTF-8");
-        Mascota datos = GSON.fromJson(leerBody(request), Mascota.class);
+        Mascota datos = parsearJson(request, Mascota.class);
+        if (datos == null) {
+            enviarError(response, HttpServletResponse.SC_BAD_REQUEST, "Cuerpo de la petición inválido o vacío");
+            return;
+        }
         if (datos.getNombre() != null) existente.setNombre(datos.getNombre());
         if (datos.getRaza() != null) existente.setRaza(datos.getRaza());
         if (datos.getIdServicio() != null) existente.setIdServicio(datos.getIdServicio());

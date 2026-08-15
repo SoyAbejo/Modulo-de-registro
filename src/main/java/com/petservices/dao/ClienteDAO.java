@@ -4,6 +4,7 @@ import com.petservices.modelo.Cliente;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -21,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ClienteDAO {
 
     // ── "Base de datos" en memoria (static = compartida en toda la app) ──
-    private static final List<Cliente>      baseDatos  = new ArrayList<>();
+    private static final List<Cliente>      baseDatos  = new CopyOnWriteArrayList<>();
     private static final AtomicInteger      contadorId = new AtomicInteger(1);
 
     // ── Datos de prueba precargados (equivale a los INSERTs del .sql) ──
@@ -38,7 +39,7 @@ public class ClienteDAO {
     // CREATE — Insertar nuevo cliente
     // Equivale a: INSERT INTO cliente (nombre, correo, contraseña) VALUES (?,?,?)
     // ──────────────────────────────────────────────────────────────────────
-    public boolean insertar(Cliente c) {
+    public synchronized boolean insertar(Cliente c) {
         // Validar que el correo no esté duplicado (UNIQUE en BD real)
         if (buscarPorCorreo(c.getCorreo()) != null) {
             return false; // correo ya existe

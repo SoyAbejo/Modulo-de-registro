@@ -1,15 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%--
-  Vista: registro.jsp
-  Muestra el formulario de registro de nuevos clientes de PetServices.
-  El formulario apunta al RegistroServlet mediante method="post".
+  Vista: registro.jsp — Formulario de registro de nuevos clientes.
+  Rediseñado con el design system central (estilos.css).
 
-  Elementos JSP utilizados:
-   - Scriptlet (<% %>) para lógica condicional
-   - Expresión (<%= %>) para mostrar valores dinámicos
-   - Directiva de página (<%@ page %>)
-  
-  Proyecto: PetServices - SENA GA7-220501096-AA2-EV02
+  Proyecto: PetServices - SENA GA7-220501096
 --%>
 <!DOCTYPE html>
 <html lang="es">
@@ -17,117 +11,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro - PetServices</title>
-    <style>
-        /* ── Reset y base ── */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #6c4cff, #a88cff);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* ── Contenedor principal ── */
-        .container {
-            display: flex;
-            width: 820px;
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-        }
-
-        /* ── Panel izquierdo decorativo ── */
-        .left {
-            width: 45%;
-            background: #6c4cff;
-            color: white;
-            padding: 50px 35px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .left h1 { font-size: 2rem; margin-bottom: 15px; }
-        .left p  { opacity: 0.85; line-height: 1.6; }
-        .left ul { margin-top: 20px; padding-left: 20px; opacity: 0.8; }
-        .left li { margin: 8px 0; }
-
-        /* ── Panel derecho: formulario ── */
-        .right {
-            width: 55%;
-            padding: 45px 40px;
-        }
-        .right h2 { color: #6c4cff; margin-bottom: 20px; font-size: 1.5rem; }
-
-        /* ── Campos del formulario ── */
-        .form-group { margin-bottom: 16px; }
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            color: #555;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 11px 14px;
-            border: 1.5px solid #ddd;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            transition: border-color 0.2s;
-        }
-        .form-group input:focus {
-            outline: none;
-            border-color: #6c4cff;
-        }
-
-        /* ── Botón ── */
-        .btn-primary {
-            width: 100%;
-            padding: 12px;
-            background: #6c4cff;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 8px;
-            transition: background 0.2s;
-        }
-        .btn-primary:hover { background: #5936e3; }
-
-        /* ── Enlace al login ── */
-        .link {
-            text-align: center;
-            margin-top: 14px;
-            font-size: 0.9rem;
-            color: #666;
-        }
-        .link a { color: #6c4cff; text-decoration: none; font-weight: bold; }
-        .link a:hover { text-decoration: underline; }
-
-        /* ── Mensajes de alerta (inyectados por el Servlet) ── */
-        .alerta {
-            padding: 10px 14px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-        }
-        .alerta-error  { background: #fde8e8; color: #c0392b; border: 1px solid #f5c6cb; }
-        .alerta-exito  { background: #eafaf1; color: #1e8449; border: 1px solid #a9dfbf; }
-    </style>
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/vistas/css/estilos.css">
 </head>
-<body>
+<body class="auth-body">
 
-<div class="container">
+<div class="auth-card">
 
-    <!-- ── Panel izquierdo ── -->
-    <div class="left">
+    <div class="auth-lado">
         <h1>🐾 PetServices</h1>
-        <p>Regístrate y cuida a tu mascota con los mejores servicios de Tunja.</p>
+        <p>Regístrate y cuida a tu mascota con los mejores servicios.</p>
         <ul>
             <li>🛁 Baño y peluquería</li>
             <li>🩺 Consultas veterinarias</li>
@@ -136,14 +28,13 @@
         </ul>
     </div>
 
-    <!-- ── Formulario de registro ── -->
-    <div class="right">
+    <div class="auth-form">
         <h2>✍️ Crear Cuenta</h2>
+        <p class="subtitulo">Completa tus datos para registrarte</p>
 
         <%--
           ELEMENTO JSP: Scriptlet
           Recupera el atributo "mensaje" que el Servlet colocó en el request.
-          Si existe, se muestra la alerta con el estilo correspondiente.
         --%>
         <%
             String mensaje     = (String) request.getAttribute("mensaje");
@@ -151,54 +42,49 @@
 
             if (mensaje != null && !mensaje.isEmpty()) {
         %>
-            <%-- ELEMENTO JSP: Expresión para mostrar el mensaje dinámico --%>
             <div class="alerta alerta-<%= tipoMensaje %>">
-                <%= mensaje %>
+                <span><%= mensaje %></span>
             </div>
         <%
             }
         %>
 
-        <%--
-          El formulario apunta al RegistroServlet (/registro) con method POST
-          para que los datos viajen de forma segura en el cuerpo de la petición.
-        --%>
         <form action="<%= request.getContextPath() %>/registro" method="post">
 
-            <div class="form-group">
+            <div class="form-campo">
                 <label for="nombre">Nombre completo</label>
                 <input type="text" id="nombre" name="nombre"
                        placeholder="Ej: Alejandro Puerto"
                        required maxlength="50">
             </div>
 
-            <div class="form-group">
+            <div class="form-campo">
                 <label for="correo">Correo electrónico</label>
                 <input type="email" id="correo" name="correo"
                        placeholder="tucorreo@email.com"
                        required maxlength="50">
             </div>
 
-            <div class="form-group">
+            <div class="form-campo">
                 <label for="contrasena">Contraseña</label>
                 <input type="password" id="contrasena" name="contrasena"
                        placeholder="Mínimo 6 caracteres"
                        required minlength="6">
             </div>
 
-            <div class="form-group">
+            <div class="form-campo">
                 <label for="confirmar">Confirmar contraseña</label>
                 <input type="password" id="confirmar" name="confirmar"
                        placeholder="Repite tu contraseña"
                        required minlength="6">
             </div>
 
-            <button type="submit" class="btn-primary">🐾 Registrarse</button>
+            <button type="submit" class="btn btn-primario">🐾 Registrarse</button>
         </form>
 
-        <div class="link">
-            <p>¿Ya tienes cuenta? <a href="<%= request.getContextPath() %>/login">Inicia sesión</a></p>
-        </div>
+        <p class="auth-enlace">
+            ¿Ya tienes cuenta? <a href="<%= request.getContextPath() %>/login">Inicia sesión</a>
+        </p>
     </div>
 
 </div>

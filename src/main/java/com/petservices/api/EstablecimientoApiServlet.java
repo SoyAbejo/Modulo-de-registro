@@ -45,7 +45,7 @@ public class EstablecimientoApiServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
-        Establecimiento nuevo = GSON.fromJson(leerBody(request), Establecimiento.class);
+        Establecimiento nuevo = parsearJson(request, Establecimiento.class);
         if (nuevo == null || nuevo.getNombre() == null || nuevo.getTipo() == null) {
             enviarError(response, HttpServletResponse.SC_BAD_REQUEST, "Los campos 'nombre' y 'tipo' son obligatorios");
             return;
@@ -67,7 +67,11 @@ public class EstablecimientoApiServlet extends HttpServlet {
             return;
         }
         request.setCharacterEncoding("UTF-8");
-        Establecimiento datos = GSON.fromJson(leerBody(request), Establecimiento.class);
+        Establecimiento datos = parsearJson(request, Establecimiento.class);
+        if (datos == null) {
+            enviarError(response, HttpServletResponse.SC_BAD_REQUEST, "Cuerpo de la petición inválido o vacío");
+            return;
+        }
         if (datos.getNombre() != null) existente.setNombre(datos.getNombre());
         if (datos.getTipo() != null) existente.setTipo(datos.getTipo());
         if (datos.getDireccion() != null) existente.setDireccion(datos.getDireccion());

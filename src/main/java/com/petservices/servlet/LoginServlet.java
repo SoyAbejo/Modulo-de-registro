@@ -4,7 +4,6 @@ import com.petservices.dao.ClienteDAO;
 import com.petservices.modelo.Cliente;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,7 +23,6 @@ import java.io.IOException;
  *
  * Proyecto: PetServices - SENA GA7-220501096-AA2-EV02
  */
-@WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
     private final ClienteDAO clienteDAO = new ClienteDAO();
@@ -42,6 +40,14 @@ public class LoginServlet extends HttpServlet {
         if ("exitoso".equals(desde)) {
             request.setAttribute("mensaje",
                     "✅ ¡Cuenta creada exitosamente! Ya puedes iniciar sesión.");
+            request.setAttribute("tipoMensaje", "exito");
+        }
+
+        // Si viene de un logout exitoso, mostrar aviso
+        String desdeLogout = request.getParameter("logout");
+        if ("ok".equals(desdeLogout)) {
+            request.setAttribute("mensaje",
+                    "✅ Has cerrado sesión correctamente.");
             request.setAttribute("tipoMensaje", "exito");
         }
 
@@ -94,7 +100,7 @@ public class LoginServlet extends HttpServlet {
             sesion.setMaxInactiveInterval(30 * 60);
 
             // Redirigir al dashboard principal (PRG pattern)
-            response.sendRedirect(request.getContextPath() + "/clientes");
+            response.sendRedirect(request.getContextPath() + "/dashboard");
 
         } else {
             // 5b. CREDENCIALES INCORRECTAS → Volver al login con error

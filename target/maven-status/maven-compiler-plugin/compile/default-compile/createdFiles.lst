@@ -1,6 +1,0 @@
-com\petservices\servlet\ClienteServlet.class
-com\petservices\servlet\LogoutServlet.class
-com\petservices\servlet\LoginServlet.class
-com\petservices\modelo\Cliente.class
-com\petservices\servlet\RegistroServlet.class
-com\petservices\dao\ClienteDAO.class

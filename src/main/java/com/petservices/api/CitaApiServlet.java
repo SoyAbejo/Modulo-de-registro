@@ -59,7 +59,7 @@ public class CitaApiServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
-        Cita nueva = GSON.fromJson(leerBody(request), Cita.class);
+        Cita nueva = parsearJson(request, Cita.class);
         if (nueva == null || nueva.getFecha() == null || nueva.getHora() == null) {
             enviarError(response, HttpServletResponse.SC_BAD_REQUEST, "Los campos 'fecha' y 'hora' son obligatorios");
             return;
@@ -87,7 +87,11 @@ public class CitaApiServlet extends HttpServlet {
             return;
         }
         request.setCharacterEncoding("UTF-8");
-        Cita datos = GSON.fromJson(leerBody(request), Cita.class);
+        Cita datos = parsearJson(request, Cita.class);
+        if (datos == null) {
+            enviarError(response, HttpServletResponse.SC_BAD_REQUEST, "Cuerpo de la petición inválido o vacío");
+            return;
+        }
         if (datos.getFecha() != null) existente.setFecha(datos.getFecha());
         if (datos.getHora() != null) existente.setHora(datos.getHora());
         if (datos.getEstado() != null) {

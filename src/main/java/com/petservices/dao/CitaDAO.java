@@ -4,6 +4,7 @@ import com.petservices.modelo.Cita;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -13,14 +14,18 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class CitaDAO {
 
-    private static final List<Cita>    baseDatos  = new ArrayList<>();
+    private static final List<Cita>    baseDatos  = new CopyOnWriteArrayList<>();
     private static final AtomicInteger contadorId = new AtomicInteger(1);
 
     static {
-        baseDatos.add(new Cita(contadorId.getAndIncrement(), "2026-04-20", "10:00:00", "confirmada", 1, 1));
-        baseDatos.add(new Cita(contadorId.getAndIncrement(), "2026-04-22", "14:30:00", "pendiente",  2, 1));
-        baseDatos.add(new Cita(contadorId.getAndIncrement(), "2026-04-25", "09:00:00", "pendiente",  3, 2));
-        baseDatos.add(new Cita(contadorId.getAndIncrement(), "2026-04-28", "11:00:00", "confirmada", 4, 3));
+        baseDatos.add(new Cita(contadorId.getAndIncrement(), "2026-04-20", "10:00:00", "confirmada",
+                1, "Alejandro Puerto", 1, "Max", "Consulta"));
+        baseDatos.add(new Cita(contadorId.getAndIncrement(), "2026-04-22", "14:30:00", "pendiente",
+                2, "Daniel Mejia", 2, "Luna", "Vacunación"));
+        baseDatos.add(new Cita(contadorId.getAndIncrement(), "2026-04-25", "09:00:00", "pendiente",
+                1, "Alejandro Puerto", 3, "Rocky", "Baño/Peluquería"));
+        baseDatos.add(new Cita(contadorId.getAndIncrement(), "2026-04-28", "11:00:00", "confirmada",
+                3, "David Yaya", 4, "Thor", "Cirugía"));
     }
 
     public boolean insertar(Cita c) {

@@ -1,0 +1,332 @@
+{
+  "info": {
+    "name": "PetServices API - GA7-220501096-AA5-EV04",
+    "description": "Coleccion de pruebas para los servicios REST del proyecto PetConnect (evidencia AA5-EV03). Incluye Auth, Clientes, Mascotas, Establecimientos, Servicios, Citas, Productos y Pedidos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/petservices" }
+  ],
+  "item": [
+    {
+      "name": "01 - Autenticacion",
+      "item": [
+        {
+          "name": "Login correcto",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"correo\": \"alejandro@gmail.com\",\n  \"contrasena\": \"123456\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Login incorrecto (401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"correo\": \"alejandro@gmail.com\",\n  \"contrasena\": \"claveMala\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Clientes",
+      "item": [
+        {
+          "name": "Listar todos los clientes",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/clientes", "host": ["{{baseUrl}}"], "path": ["api", "clientes"] } }
+        },
+        {
+          "name": "Obtener cliente por id",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/clientes/1", "host": ["{{baseUrl}}"], "path": ["api", "clientes", "1"] } }
+        },
+        {
+          "name": "Cliente inexistente (404)",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/clientes/999", "host": ["{{baseUrl}}"], "path": ["api", "clientes", "999"] } }
+        },
+        {
+          "name": "Crear cliente",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Juan Alejo\",\n  \"correo\": \"juan.alejo@gmail.com\",\n  \"contrasena\": \"123456\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/clientes", "host": ["{{baseUrl}}"], "path": ["api", "clientes"] }
+          }
+        },
+        {
+          "name": "Crear cliente con correo duplicado (409)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Alejandro Puerto\",\n  \"correo\": \"alejandro@gmail.com\",\n  \"contrasena\": \"123456\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/clientes", "host": ["{{baseUrl}}"], "path": ["api", "clientes"] }
+          }
+        },
+        {
+          "name": "Actualizar cliente",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Alejandro Puerto Actualizado\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/clientes/1", "host": ["{{baseUrl}}"], "path": ["api", "clientes", "1"] }
+          }
+        },
+        {
+          "name": "Eliminar cliente",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/clientes/4", "host": ["{{baseUrl}}"], "path": ["api", "clientes", "4"] } }
+        }
+      ]
+    },
+    {
+      "name": "03 - Mascotas",
+      "item": [
+        {
+          "name": "Listar todas las mascotas",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/mascotas", "host": ["{{baseUrl}}"], "path": ["api", "mascotas"] } }
+        },
+        {
+          "name": "Obtener mascota por id",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/mascotas/1", "host": ["{{baseUrl}}"], "path": ["api", "mascotas", "1"] } }
+        },
+        {
+          "name": "Listar mascotas de un cliente",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/mascotas?idCliente=1", "host": ["{{baseUrl}}"], "path": ["api", "mascotas"], "query": [{ "key": "idCliente", "value": "1" }] } }
+        },
+        {
+          "name": "Crear mascota",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"raza\": \"Bulldog\",\n  \"nombre\": \"Toby\",\n  \"idCliente\": 1\n}" },
+            "url": { "raw": "{{baseUrl}}/api/mascotas", "host": ["{{baseUrl}}"], "path": ["api", "mascotas"] }
+          }
+        },
+        {
+          "name": "Crear mascota sin campos obligatorios (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"idCliente\": 1\n}" },
+            "url": { "raw": "{{baseUrl}}/api/mascotas", "host": ["{{baseUrl}}"], "path": ["api", "mascotas"] }
+          }
+        },
+        {
+          "name": "Actualizar mascota",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Max Actualizado\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/mascotas/1", "host": ["{{baseUrl}}"], "path": ["api", "mascotas", "1"] }
+          }
+        },
+        {
+          "name": "Eliminar mascota",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/mascotas/4", "host": ["{{baseUrl}}"], "path": ["api", "mascotas", "4"] } }
+        }
+      ]
+    },
+    {
+      "name": "04 - Establecimientos",
+      "item": [
+        {
+          "name": "Listar todos los establecimientos",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/establecimientos", "host": ["{{baseUrl}}"], "path": ["api", "establecimientos"] } }
+        },
+        {
+          "name": "Obtener establecimiento por id",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/establecimientos/1", "host": ["{{baseUrl}}"], "path": ["api", "establecimientos", "1"] } }
+        },
+        {
+          "name": "Crear establecimiento",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Veterinaria Norte\",\n  \"tipo\": \"veterinaria\",\n  \"direccion\": \"Cra 5 #10-20 Tunja\",\n  \"telefono\": \"3201234567\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/establecimientos", "host": ["{{baseUrl}}"], "path": ["api", "establecimientos"] }
+          }
+        },
+        {
+          "name": "Actualizar establecimiento",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"telefono\": \"3009998877\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/establecimientos/1", "host": ["{{baseUrl}}"], "path": ["api", "establecimientos", "1"] }
+          }
+        },
+        {
+          "name": "Eliminar establecimiento",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/establecimientos/4", "host": ["{{baseUrl}}"], "path": ["api", "establecimientos", "4"] } }
+        }
+      ]
+    },
+    {
+      "name": "05 - Servicios",
+      "item": [
+        {
+          "name": "Listar todos los servicios",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/servicios", "host": ["{{baseUrl}}"], "path": ["api", "servicios"] } }
+        },
+        {
+          "name": "Obtener servicio por id",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/servicios/1", "host": ["{{baseUrl}}"], "path": ["api", "servicios", "1"] } }
+        },
+        {
+          "name": "Crear servicio",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"tipo\": \"Consulta\",\n  \"nombre\": \"Desparasitacion\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/servicios", "host": ["{{baseUrl}}"], "path": ["api", "servicios"] }
+          }
+        },
+        {
+          "name": "Actualizar servicio",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Vacunacion antirrabica anual\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/servicios/1", "host": ["{{baseUrl}}"], "path": ["api", "servicios", "1"] }
+          }
+        },
+        {
+          "name": "Eliminar servicio",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/servicios/4", "host": ["{{baseUrl}}"], "path": ["api", "servicios", "4"] } }
+        }
+      ]
+    },
+    {
+      "name": "06 - Citas",
+      "item": [
+        {
+          "name": "Listar todas las citas",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/citas", "host": ["{{baseUrl}}"], "path": ["api", "citas"] } }
+        },
+        {
+          "name": "Obtener cita por id",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/citas/1", "host": ["{{baseUrl}}"], "path": ["api", "citas", "1"] } }
+        },
+        {
+          "name": "Filtrar citas por estado",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/citas?estado=pendiente", "host": ["{{baseUrl}}"], "path": ["api", "citas"], "query": [{ "key": "estado", "value": "pendiente" }] } }
+        },
+        {
+          "name": "Agendar cita",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"fecha\": \"2026-09-01\",\n  \"hora\": \"10:00:00\",\n  \"idMascota\": 1,\n  \"idEstablecimiento\": 1\n}" },
+            "url": { "raw": "{{baseUrl}}/api/citas", "host": ["{{baseUrl}}"], "path": ["api", "citas"] }
+          }
+        },
+        {
+          "name": "Agendar cita con estado invalido (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"fecha\": \"2026-09-01\",\n  \"hora\": \"10:00:00\",\n  \"idMascota\": 1,\n  \"idEstablecimiento\": 1,\n  \"estado\": \"en_proceso\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/citas", "host": ["{{baseUrl}}"], "path": ["api", "citas"] }
+          }
+        },
+        {
+          "name": "Confirmar cita",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"estado\": \"confirmada\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/citas/2", "host": ["{{baseUrl}}"], "path": ["api", "citas", "2"] }
+          }
+        },
+        {
+          "name": "Cancelar (eliminar) cita",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/citas/3", "host": ["{{baseUrl}}"], "path": ["api", "citas", "3"] } }
+        }
+      ]
+    },
+    {
+      "name": "07 - Productos",
+      "item": [
+        {
+          "name": "Listar todos los productos",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/productos", "host": ["{{baseUrl}}"], "path": ["api", "productos"] } }
+        },
+        {
+          "name": "Obtener producto por id",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/productos/1", "host": ["{{baseUrl}}"], "path": ["api", "productos", "1"] } }
+        },
+        {
+          "name": "Filtrar productos con stock bajo",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/productos?stockMenorA=20", "host": ["{{baseUrl}}"], "path": ["api", "productos"], "query": [{ "key": "stockMenorA", "value": "20" }] } }
+        },
+        {
+          "name": "Crear producto",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Collar antipulgas\",\n  \"descripcion\": \"Talla M\",\n  \"precio\": 32000.0,\n  \"stock\": 25,\n  \"idEstablecimiento\": 2\n}" },
+            "url": { "raw": "{{baseUrl}}/api/productos", "host": ["{{baseUrl}}"], "path": ["api", "productos"] }
+          }
+        },
+        {
+          "name": "Actualizar producto",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"precio\": 47000.0,\n  \"stock\": 40\n}" },
+            "url": { "raw": "{{baseUrl}}/api/productos/1", "host": ["{{baseUrl}}"], "path": ["api", "productos", "1"] }
+          }
+        },
+        {
+          "name": "Eliminar producto",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/productos/3", "host": ["{{baseUrl}}"], "path": ["api", "productos", "3"] } }
+        }
+      ]
+    },
+    {
+      "name": "08 - Pedidos",
+      "item": [
+        {
+          "name": "Listar todos los pedidos",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/pedidos", "host": ["{{baseUrl}}"], "path": ["api", "pedidos"] } }
+        },
+        {
+          "name": "Obtener pedido por id",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/pedidos/1", "host": ["{{baseUrl}}"], "path": ["api", "pedidos", "1"] } }
+        },
+        {
+          "name": "Crear pedido",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"total\": 45000.0,\n  \"cantidad\": 1,\n  \"idCliente\": 1,\n  \"idEstablecimiento\": 2\n}" },
+            "url": { "raw": "{{baseUrl}}/api/pedidos", "host": ["{{baseUrl}}"], "path": ["api", "pedidos"] }
+          }
+        },
+        {
+          "name": "Crear pedido con total invalido (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"total\": 0,\n  \"cantidad\": 1,\n  \"idCliente\": 1,\n  \"idEstablecimiento\": 2\n}" },
+            "url": { "raw": "{{baseUrl}}/api/pedidos", "host": ["{{baseUrl}}"], "path": ["api", "pedidos"] }
+          }
+        },
+        {
+          "name": "Actualizar estado de pedido",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"estado\": \"completado\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/pedidos/1", "host": ["{{baseUrl}}"], "path": ["api", "pedidos", "1"] }
+          }
+        },
+        {
+          "name": "Eliminar pedido",
+          "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/api/pedidos/1", "host": ["{{baseUrl}}"], "path": ["api", "pedidos", "1"] } }
+        }
+      ]
+    }
+  ]
+}

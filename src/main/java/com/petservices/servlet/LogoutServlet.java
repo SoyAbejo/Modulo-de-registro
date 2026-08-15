@@ -1,7 +1,6 @@
 package com.petservices.servlet;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,7 +15,6 @@ import java.io.IOException;
  *
  * Proyecto: PetServices - SENA GA7-220501096-AA2-EV02
  */
-@WebServlet("/logout")
 public class LogoutServlet extends HttpServlet {
 
     @Override

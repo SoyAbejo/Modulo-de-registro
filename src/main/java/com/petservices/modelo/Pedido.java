@@ -17,6 +17,9 @@ public class Pedido {
     private int    idCliente;
     private int    idEstablecimiento;
 
+    // ── Campo del módulo web (AA2-EV02) ──
+    private String nombreCliente; // desnormalizado para mostrar el cliente sin JOIN
+
     public Pedido() {}
 
     public Pedido(double total, int cantidad, int idCliente, int idEstablecimiento) {
@@ -58,4 +61,7 @@ public class Pedido {
 
     public int getIdEstablecimiento() { return idEstablecimiento; }
     public void setIdEstablecimiento(int idEstablecimiento) { this.idEstablecimiento = idEstablecimiento; }
+
+    public String getNombreCliente() { return nombreCliente; }
+    public void setNombreCliente(String nombreCliente) { this.nombreCliente = nombreCliente; }
 }

@@ -4,6 +4,7 @@ import com.petservices.modelo.Servicio;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -13,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ServicioDAO {
 
-    private static final List<Servicio> baseDatos  = new ArrayList<>();
+    private static final List<Servicio> baseDatos  = new CopyOnWriteArrayList<>();
     private static final AtomicInteger   contadorId = new AtomicInteger(1);
 
     static {

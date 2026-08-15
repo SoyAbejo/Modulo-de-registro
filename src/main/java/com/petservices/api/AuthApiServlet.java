@@ -30,7 +30,7 @@ public class AuthApiServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
-        Credenciales credenciales = GSON.fromJson(leerBody(request), Credenciales.class);
+        Credenciales credenciales = parsearJson(request, Credenciales.class);
         if (credenciales == null || credenciales.correo == null || credenciales.contrasena == null) {
             enviarError(response, HttpServletResponse.SC_BAD_REQUEST, "Los campos 'correo' y 'contrasena' son obligatorios");
             return;

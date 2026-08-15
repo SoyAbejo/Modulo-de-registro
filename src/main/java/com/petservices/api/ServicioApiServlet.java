@@ -45,7 +45,7 @@ public class ServicioApiServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
-        Servicio nuevo = GSON.fromJson(leerBody(request), Servicio.class);
+        Servicio nuevo = parsearJson(request, Servicio.class);
         if (nuevo == null || nuevo.getNombre() == null || nuevo.getTipo() == null) {
             enviarError(response, HttpServletResponse.SC_BAD_REQUEST, "Los campos 'nombre' y 'tipo' son obligatorios");
             return;
@@ -67,7 +67,11 @@ public class ServicioApiServlet extends HttpServlet {
             return;
         }
         request.setCharacterEncoding("UTF-8");
-        Servicio datos = GSON.fromJson(leerBody(request), Servicio.class);
+        Servicio datos = parsearJson(request, Servicio.class);
+        if (datos == null) {
+            enviarError(response, HttpServletResponse.SC_BAD_REQUEST, "Cuerpo de la petición inválido o vacío");
+            return;
+        }
         if (datos.getNombre() != null) existente.setNombre(datos.getNombre());
         if (datos.getTipo() != null) existente.setTipo(datos.getTipo());
         if (datos.getIdMascota() != null) existente.setIdMascota(datos.getIdMascota());

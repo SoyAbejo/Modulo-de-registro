@@ -1,6 +1,7 @@
 package com.petservices.api.util;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -54,6 +55,20 @@ public final class ApiUtil {
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * Lee el body de la petición y lo deserializa como JSON.
+     * Retorna null si el body está vacío o el JSON es inválido.
+     */
+    public static <T> T parsearJson(HttpServletRequest request, Class<T> clase) throws IOException {
+        String body = leerBody(request);
+        if (body == null || body.trim().isEmpty()) return null;
+        try {
+            return GSON.fromJson(body, clase);
+        } catch (JsonSyntaxException e) {
+            return null;
+        }
     }
 
     /**

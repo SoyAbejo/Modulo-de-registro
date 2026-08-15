@@ -44,8 +44,13 @@ public class ProductoApiServlet extends HttpServlet {
         String stockMenorA = request.getParameter("stockMenorA");
         List<Producto> lista = productoDAO.listarTodos();
         if (stockMenorA != null) {
-            int limite = Integer.parseInt(stockMenorA);
-            lista.removeIf(p -> p.getStock() >= limite);
+            try {
+                int limite = Integer.parseInt(stockMenorA);
+                lista.removeIf(p -> p.getStock() >= limite);
+            } catch (NumberFormatException e) {
+                enviarError(response, HttpServletResponse.SC_BAD_REQUEST, "El parámetro 'stockMenorA' debe ser un número entero");
+                return;
+            }
         }
         enviarJson(response, HttpServletResponse.SC_OK, lista);
     }
@@ -53,7 +58,7 @@ public class ProductoApiServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
-        Producto nuevo = GSON.fromJson(leerBody(request), Producto.class);
+        Producto nuevo = parsearJson(request, Producto.class);
         if (nuevo == null || nuevo.getNombre() == null) {
             enviarError(response, HttpServletResponse.SC_BAD_REQUEST, "El campo 'nombre' es obligatorio");
             return;
@@ -75,7 +80,11 @@ public class ProductoApiServlet extends HttpServlet {
             return;
         }
         request.setCharacterEncoding("UTF-8");
-        Producto datos = GSON.fromJson(leerBody(request), Producto.class);
+        Producto datos = parsearJson(request, Producto.class);
+        if (datos == null) {
+            enviarError(response, HttpServletResponse.SC_BAD_REQUEST, "Cuerpo de la petición inválido o vacío");
+            return;
+        }
         if (datos.getNombre() != null) existente.setNombre(datos.getNombre());
         if (datos.getDescripcion() != null) existente.setDescripcion(datos.getDescripcion());
         if (datos.getPrecio() != 0) existente.setPrecio(datos.getPrecio());

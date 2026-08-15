@@ -1,7 +1,7 @@
 package com.petservices.servlet;
 
-import com.petservices.dao.ClienteDAO;
-import com.petservices.modelo.Cliente;
+import com.petservices.dao.ProductoDAO;
+import com.petservices.modelo.Producto;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -10,20 +10,24 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Servlet: ClienteServlet
- * URL de mapeo: /clientes
+ * Servlet: ProductoServlet
+ * URL de mapeo: /productos
  * ──────────────────────────────────────────────────────────────────────────
- * Controlador principal del módulo de GESTIÓN DE CLIENTES (CRUD).
+ * Controlador principal del módulo de INVENTARIO DE PRODUCTOS (CRUD).
  * Usa el parámetro "accion" para determinar la operación a ejecutar.
  *
  *  doGet  → listar, editar (cargar formulario), eliminar
  *  doPost → crear, actualizar
  *
+ * Reglas de negocio:
+ *  - nombre y categoria obligatorios.
+ *  - precio y stock no pueden ser negativos.
+ *
  * Proyecto: PetServices - SENA GA7-220501096-AA2-EV02
  */
-public class ClienteServlet extends BaseProtectedServlet {
+public class ProductoServlet extends BaseProtectedServlet {
 
-    private final ClienteDAO clienteDAO = new ClienteDAO();
+    private final ProductoDAO productoDAO = new ProductoDAO();
 
     // ──────────────────────────────────────────────────────────────────────
     // doGet: Operaciones de lectura y navegación
@@ -33,37 +37,35 @@ public class ClienteServlet extends BaseProtectedServlet {
                          HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Verificar que el usuario tenga sesión activa (protección básica)
         if (requireLogin(request, response)) {
             return;
         }
 
-        // Leer el parámetro "accion" de la URL (?accion=listar, ?accion=editar, etc.)
         String accion = request.getParameter("accion");
-        if (accion == null) accion = "listar"; // valor por defecto
+        if (accion == null) accion = "listar";
 
         switch (accion) {
 
             case "editar":
-                // Cargar los datos del cliente seleccionado en el formulario de edición
                 int idEditar = parseInt(request.getParameter("id"), -1);
-                Cliente clienteEditar = clienteDAO.buscarPorId(idEditar);
-                if (clienteEditar != null) {
-                    request.setAttribute("clienteEditar", clienteEditar);
+                Producto productoEditar = productoDAO.buscarPorId(idEditar);
+                if (productoEditar != null) {
+                    request.setAttribute("productoEditar", productoEditar);
+                } else {
+                    request.setAttribute("mensaje", "❌ No se encontró el producto con id " + idEditar + ".");
+                    request.setAttribute("tipoMensaje", "error");
                 }
-                // Siempre cargamos la lista para mostrar la tabla debajo del formulario
                 cargarListaYForwardear(request, response);
                 break;
 
             case "eliminar":
-                // Eliminar el cliente con el id especificado
                 int idEliminar = parseInt(request.getParameter("id"), -1);
-                boolean eliminado = clienteDAO.eliminar(idEliminar);
+                boolean eliminado = productoDAO.eliminar(idEliminar);
                 if (eliminado) {
-                    request.setAttribute("mensaje", "✅ Cliente eliminado correctamente.");
+                    request.setAttribute("mensaje", "✅ Producto eliminado correctamente.");
                     request.setAttribute("tipoMensaje", "exito");
                 } else {
-                    request.setAttribute("mensaje", "❌ No se encontró el cliente.");
+                    request.setAttribute("mensaje", "❌ No se encontró el producto.");
                     request.setAttribute("tipoMensaje", "error");
                 }
                 cargarListaYForwardear(request, response);
@@ -84,7 +86,6 @@ public class ClienteServlet extends BaseProtectedServlet {
                           HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Verificar sesión
         if (requireLogin(request, response)) {
             return;
         }
@@ -92,73 +93,73 @@ public class ClienteServlet extends BaseProtectedServlet {
         request.setCharacterEncoding("UTF-8");
         String accion = request.getParameter("accion");
 
+        // ── Leer y validar los campos comunes ────────────────────────────
+        String nombre    = limpiar(request.getParameter("nombre"));
+        String categoria = limpiar(request.getParameter("categoria"));
+        double precio    = parseDouble(request.getParameter("precio"), -1);
+        int    stock     = parseInt(request.getParameter("stock"), -1);
+
+        if (nombre.isEmpty() || categoria.isEmpty()) {
+            request.setAttribute("mensaje", "❌ Los campos nombre y categoría son obligatorios.");
+            request.setAttribute("tipoMensaje", "error");
+            cargarListaYForwardear(request, response);
+            return;
+        }
+        if (precio < 0) {
+            request.setAttribute("mensaje", "❌ El precio no puede ser negativo.");
+            request.setAttribute("tipoMensaje", "error");
+            cargarListaYForwardear(request, response);
+            return;
+        }
+        if (stock < 0) {
+            request.setAttribute("mensaje", "❌ El stock no puede ser negativo.");
+            request.setAttribute("tipoMensaje", "error");
+            cargarListaYForwardear(request, response);
+            return;
+        }
+
         if ("crear".equals(accion)) {
-            // ── CREAR nuevo cliente ──────────────────────────────────────
-            String nombre    = limpiar(request.getParameter("nombre"));
-            String correo    = limpiar(request.getParameter("correo")).toLowerCase();
-            String contrasena = request.getParameter("contrasena");
+            // ── CREAR nuevo producto ─────────────────────────────────────
+            Producto nuevo = new Producto();
+            nuevo.setNombre(nombre);
+            nuevo.setCategoria(categoria);
+            nuevo.setPrecio(precio);
+            nuevo.setStock(stock);
 
-            if (nombre.isEmpty() || correo.isEmpty()) {
-                request.setAttribute("mensaje", "❌ Los campos nombre y correo son obligatorios.");
-                request.setAttribute("tipoMensaje", "error");
-                cargarListaYForwardear(request, response);
-                return;
-            }
-
-            Cliente nuevo = new Cliente(
-                    nombre,
-                    correo,
-                    contrasena
-            );
-
-            boolean creado = clienteDAO.insertar(nuevo);
-            if (creado) {
-                request.setAttribute("mensaje", "✅ Cliente '" + nombre + "' creado.");
-                request.setAttribute("tipoMensaje", "exito");
-            } else {
-                request.setAttribute("mensaje",
-                        "❌ El correo '" + correo + "' ya está registrado.");
-                request.setAttribute("tipoMensaje", "error");
-            }
+            productoDAO.insertar(nuevo);
+            request.setAttribute("mensaje", "✅ Producto '" + nombre + "' agregado al inventario.");
+            request.setAttribute("tipoMensaje", "exito");
 
         } else if ("actualizar".equals(accion)) {
-            // ── ACTUALIZAR cliente existente ─────────────────────────────
-            int    id        = parseInt(request.getParameter("id"), -1);
-            String nombre    = limpiar(request.getParameter("nombre"));
-            String correo    = limpiar(request.getParameter("correo")).toLowerCase();
-            String contrasena = request.getParameter("contrasena");
-
-            // Recuperar datos actuales para no pisar la contraseña si viene vacía
-            Cliente existente = clienteDAO.buscarPorId(id);
+            // ── ACTUALIZAR producto existente ────────────────────────────
+            int id = parseInt(request.getParameter("id"), -1);
+            Producto existente = productoDAO.buscarPorId(id);
             if (existente != null) {
                 existente.setNombre(nombre);
-                existente.setCorreo(correo);
-                // Solo actualizar contraseña si el usuario ingresó una nueva
-                if (contrasena != null && !contrasena.trim().isEmpty()) {
-                    existente.setContrasena(contrasena);
-                }
-                clienteDAO.actualizar(existente);
-                request.setAttribute("mensaje", "✅ Cliente actualizado correctamente.");
+                existente.setCategoria(categoria);
+                existente.setPrecio(precio);
+                existente.setStock(stock);
+                productoDAO.actualizar(existente);
+                request.setAttribute("mensaje", "✅ Producto actualizado correctamente.");
                 request.setAttribute("tipoMensaje", "exito");
             } else {
-                request.setAttribute("mensaje", "❌ Cliente no encontrado.");
+                request.setAttribute("mensaje", "❌ Producto no encontrado.");
                 request.setAttribute("tipoMensaje", "error");
             }
         }
 
-        // Tras crear/actualizar, siempre mostrar la lista actualizada
         cargarListaYForwardear(request, response);
     }
 
     // ──────────────────────────────────────────────────────────────────────
-    // Método auxiliar: carga la lista y hace forward al JSP de gestión
+    // Método auxiliar: carga la lista de productos y hace forward
     // ──────────────────────────────────────────────────────────────────────
     private void cargarListaYForwardear(HttpServletRequest request,
                                         HttpServletResponse response)
             throws ServletException, IOException {
-        List<Cliente> lista = clienteDAO.listarTodos();
-        // Guardamos la lista como atributo del request para que el JSP la use
-        request.setAttribute("listaClientes", lista);
-        forward(request, response, "/vistas/clientes.jsp");
+        List<Producto> listaProductos = productoDAO.listarTodos();
+        request.setAttribute("listaProductos", listaProductos);
+        forward(request, response, "/vistas/productos.jsp");
     }
+
 }

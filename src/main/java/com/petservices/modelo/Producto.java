@@ -18,6 +18,9 @@ public class Producto {
     private int    idEstablecimiento;
     private Integer idCliente; // puede ser null
 
+    // ── Campo del módulo web (AA2-EV02) ──
+    private String categoria; // Alimento, Medicamento, Accesorio, Juguete
+
     public Producto() {}
 
     public Producto(String nombre, String descripcion, double precio,
@@ -65,4 +68,7 @@ public class Producto {
 
     public Integer getIdCliente() { return idCliente; }
     public void setIdCliente(Integer idCliente) { this.idCliente = idCliente; }
+
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
 }

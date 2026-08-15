@@ -4,7 +4,6 @@ import com.petservices.dao.ClienteDAO;
 import com.petservices.modelo.Cliente;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,7 +20,6 @@ import java.io.IOException;
  *
  * Proyecto: PetServices - SENA GA7-220501096-AA2-EV02
  */
-@WebServlet("/registro")
 public class RegistroServlet extends HttpServlet {
 
     // Instancia del DAO (en producción se inyecta o se usa un pool)

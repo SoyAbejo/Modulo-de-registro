@@ -50,7 +50,7 @@ public class ClienteApiServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
-        Cliente nuevo = GSON.fromJson(leerBody(request), Cliente.class);
+        Cliente nuevo = parsearJson(request, Cliente.class);
         if (nuevo == null || nuevo.getNombre() == null || nuevo.getCorreo() == null) {
             enviarError(response, HttpServletResponse.SC_BAD_REQUEST, "Los campos 'nombre' y 'correo' son obligatorios");
             return;
@@ -76,7 +76,11 @@ public class ClienteApiServlet extends HttpServlet {
             return;
         }
         request.setCharacterEncoding("UTF-8");
-        Cliente datos = GSON.fromJson(leerBody(request), Cliente.class);
+        Cliente datos = parsearJson(request, Cliente.class);
+        if (datos == null) {
+            enviarError(response, HttpServletResponse.SC_BAD_REQUEST, "Cuerpo de la petición inválido o vacío");
+            return;
+        }
         if (datos.getNombre() != null) existente.setNombre(datos.getNombre());
         if (datos.getCorreo() != null) existente.setCorreo(datos.getCorreo());
         if (datos.getContrasena() != null && !datos.getContrasena().isEmpty()) {

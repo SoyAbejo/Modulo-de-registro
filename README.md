@@ -7,7 +7,7 @@ las entidades del modelo físico `petconnect_completo.sql`.
 
 | Evidencia | Contenido |
 |---|---|
-| **AA2-EV02** | Módulo web (Servlets + JSP): registro, login y CRUD de clientes |
+| **AA2-EV02** | Módulo web (Servlets + JSP): registro, login, dashboard y CRUD de clientes |
 | **AA5-EV03** | Diseño y codificación de los **servicios web (API REST)** del proyecto — ver [`DOCUMENTACION_API.md`](./DOCUMENTACION_API.md) |
 
 ---
@@ -62,7 +62,13 @@ petservices/                              ← Raíz del proyecto Maven
         │   ├── servlet/                  ← Controladores web (JSP), evidencia AA2-EV02
         │   │   ├── RegistroServlet.java  ← Controlador: /registro
         │   │   ├── LoginServlet.java     ← Controlador: /login
+        │   │   ├── DashboardServlet.java ← Controlador: /dashboard (KPIs)
         │   │   ├── ClienteServlet.java   ← Controlador: /clientes (CRUD)
+        │   │   ├── MascotaServlet.java   ← Controlador: /mascotas (CRUD)
+        │   │   ├── CitaServlet.java      ← Controlador: /citas (CRUD)
+        │   │   ├── ServicioServlet.java  ← Controlador: /servicios (CRUD)
+        │   │   ├── ProductoServlet.java  ← Controlador: /productos (CRUD)
+        │   │   ├── PedidoServlet.java    ← Controlador: /pedidos (CRUD)
         │   │   └── LogoutServlet.java    ← Controlador: /logout
         │   └── api/                      ← Servicios REST JSON, evidencia AA5-EV03
         │       ├── util/ApiUtil.java     ← JSON, lectura de body, extracción de id
@@ -75,12 +81,23 @@ petservices/                              ← Raíz del proyecto Maven
         │       ├── ProductoApiServlet.java   → /api/productos
         │       └── PedidoApiServlet.java     → /api/pedidos
         │
-        └── webapp/                       ← Recursos web (WEB-INF, JSPs, CSS)
+        └── webapp/                       ← Recursos web (WEB-INF, JSPs, CSS, JS)
             ├── index.jsp                 ← Redirección automática
             ├── vistas/
+            │   ├── css/estilos.css       ← Design system central (layout + componentes)
+            │   ├── js/app.js             ← Menú móvil, filtros de tablas, confirmaciones
+            │   ├── fragmentos/           ← Layout reutilizable (sidebar + header)
             │   ├── registro.jsp          ← Formulario de registro
             │   ├── login.jsp             ← Formulario de inicio de sesión
-            │   └── clientes.jsp          ← Panel CRUD de gestión
+            │   ├── dashboard.jsp         ← KPIs y accesos rápidos
+            │   ├── clientes.jsp          ← Panel CRUD de gestión
+            │   ├── mascotas.jsp          ← Panel CRUD de mascotas
+            │   ├── citas.jsp             ← Panel CRUD de citas
+            │   ├── servicios.jsp         ← Panel CRUD de servicios
+            │   ├── productos.jsp         ← Panel CRUD de productos
+            │   ├── pedidos.jsp           ← Panel CRUD de pedidos
+            │   ├── error404.jsp          ← Página de error 404
+            │   └── error500.jsp          ← Página de error 500
             └── WEB-INF/
                 └── web.xml               ← Descriptor de despliegue
 ```
@@ -105,6 +122,45 @@ mvn clean package
 # Iniciar Tomcat: TOMCAT_HOME/bin/startup.sh (Linux) o startup.bat (Windows)
 ```
 
+### Opción C — Arranque local rápido sin pelear con el puerto 8080
+```bash
+# Windows
+iniciar-local.bat
+
+# O el comando Maven equivalente
+mvn tomcat7:run
+```
+
+Por defecto el proyecto arranca en `http://localhost:8081/petservices/` para
+evitar conflictos con otros servidores locales que suelen ocupar el puerto 8080.
+Si necesitas otro puerto:
+
+```bash
+iniciar-local.bat 8090
+# o
+mvn tomcat7:run -Dapp.port=8090
+```
+
+### ⚠️ Error 404 en módulos (citas, servicios, etc.) — despliegue limpio
+
+Si un módulo devuelve 404, el servidor está sirviendo una **versión anterior**
+(proceso de Tomcat arrancado antes de compilar, o caché de JSPs compilados).
+Solución en Windows: ejecuta **`desplegar.bat`** (en la raíz del proyecto), que
+limpia, reconstruye y verifica el WAR. O manualmente:
+
+```bash
+# 1. Detén Tomcat por completo
+# 2. Borra: TOMCAT_HOME/webapps/petservices (carpeta), petservices.war
+#    y TOMCAT_HOME/work/Catalina/localhost/petservices (caché de JSPs)
+cd petservices
+mvn clean package
+# 3. Copia target/petservices.war a TOMCAT_HOME/webapps/ e inicia Tomcat
+```
+
+> Los servlets también están declarados explícitamente en `WEB-INF/web.xml`
+> (además de `@WebServlet`), por lo que el mapeo de rutas no depende del
+> escaneo de anotaciones del servidor.
+
 ### Cuentas de prueba (precargadas en memoria)
 | Correo                    | Contraseña |
 |---------------------------|-----------|
@@ -121,7 +177,13 @@ mvn clean package
 | `http://localhost:8080/petservices/`        | Redirige al login automáticamente |
 | `http://localhost:8080/petservices/login`   | Formulario de inicio de sesión   |
 | `http://localhost:8080/petservices/registro`| Formulario de registro           |
+| `http://localhost:8080/petservices/dashboard`| Dashboard con KPIs (requiere sesión) |
 | `http://localhost:8080/petservices/clientes`| Panel CRUD (requiere sesión)     |
+| `http://localhost:8080/petservices/mascotas`| Panel CRUD (requiere sesión)     |
+| `http://localhost:8080/petservices/citas`   | Panel CRUD (requiere sesión)     |
+| `http://localhost:8080/petservices/servicios`| Panel CRUD (requiere sesión)    |
+| `http://localhost:8080/petservices/productos`| Panel CRUD (requiere sesión)    |
+| `http://localhost:8080/petservices/pedidos` | Panel CRUD (requiere sesión)     |
 | `http://localhost:8080/petservices/logout`  | Cierre de sesión                 |
 
 ---
@@ -135,9 +197,11 @@ login.jsp  ←──────────────── logout
     ↓ (doPost: validar)
 LoginServlet
     ↓ (sesión creada)
-ClienteServlet (doGet: listar)
+DashboardServlet (doGet: KPIs)
     ↓
-clientes.jsp
+dashboard.jsp
+    ↓ (accesos rápidos del menú lateral)
+Cada módulo (clientes, mascotas, citas, servicios, productos, pedidos)
     ├── Crear  → doPost accion=crear
     ├── Editar → doGet  accion=editar → doPost accion=actualizar
     └── Borrar → doGet  accion=eliminar
@@ -153,7 +217,13 @@ clientes.jsp
 |-------------------|------------------------------------|-------------------------------|
 | RegistroServlet   | Cargar formulario vacío            | Procesar y guardar nuevo cliente |
 | LoginServlet      | Cargar formulario de login         | Validar credenciales, crear sesión |
+| DashboardServlet  | KPIs y últimas citas               | —                              |
 | ClienteServlet    | Listar, cargar edición, eliminar   | Crear cliente, actualizar cliente |
+| MascotaServlet    | Listar, cargar edición, eliminar   | Crear mascota, actualizar mascota |
+| CitaServlet       | Listar, cargar edición, eliminar   | Crear cita, actualizar cita |
+| ServicioServlet   | Listar, cargar edición, eliminar   | Crear servicio, actualizar servicio |
+| ProductoServlet   | Listar, cargar edición, eliminar   | Crear producto, actualizar producto |
+| PedidoServlet     | Listar, cargar edición, eliminar   | Crear pedido, actualizar pedido |
 | LogoutServlet     | Invalidar sesión, redirigir        | —                              |
 
 ### API REST (JSON) — AA5-EV03

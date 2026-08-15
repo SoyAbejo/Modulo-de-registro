@@ -4,6 +4,7 @@ import com.petservices.modelo.Pedido;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -13,12 +14,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class PedidoDAO {
 
-    private static final List<Pedido>  baseDatos  = new ArrayList<>();
+    private static final List<Pedido>  baseDatos  = new CopyOnWriteArrayList<>();
     private static final AtomicInteger contadorId = new AtomicInteger(1);
 
     static {
-        baseDatos.add(new Pedido(contadorId.getAndIncrement(), "2026-03-15",
-                68000.00, "completado", 2, 1, 2));
+        Pedido p = new Pedido(contadorId.getAndIncrement(), "2026-03-15",
+                68000.00, "entregado", 2, 1, 2);
+        p.setNombreCliente("Alejandro Puerto");
+        baseDatos.add(p);
     }
 
     public boolean insertar(Pedido p) {
